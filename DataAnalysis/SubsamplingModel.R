@@ -20,19 +20,18 @@ code <- nimbleCode({
   psi0 <- logit(psi)
   
   mu.gamma ~ dnorm(0, 0.001)
-  mu.gamma.real <- mu.gamma
   tau.gamma ~ dgamma(0.001, 0.001)
   sd.gamma <- 1/sqrt(tau.gamma)
   
-  mu.Lambda0 ~ dunif(0, 500000) #Expected mean abundance of a colony in year 1
-  tau.Lambda0 ~ dgamma(0.1, 0.1) #Precision of colony variation in abundance in year 1
-  sd.Lambda0 <- 1/sqrt(tau.Lambda0)
+  # mu.Lambda0 ~ dunif(0, 500000) #Expected mean abundance of a colony in year 1
+  # tau.Lambda0 ~ dgamma(0.1, 0.1) #Precision of colony variation in abundance in year 1
+  # sd.Lambda0 <- 1/sqrt(tau.Lambda0)
   
   for(i in 1:ncolonies){
     eps.gamma[i] ~ dnorm(0, tau.gamma)
     log(gamma0[i]) <- mu.gamma + eps.gamma[i]
-    gamma0.real[i] <- gamma0[i]
-    Lambda0[i] ~ dnorm(mu.Lambda0, tau.Lambda0)
+    #Lambda0[i] ~ dnorm(mu.Lambda0, tau.Lambda0)
+    Lambda0[i] ~ dnorm(0, 0.00001)
     Lambda[1,i] <- Lambda0[i]
     
     for(t in 2:nyears){
@@ -70,9 +69,9 @@ constants <- constants
 
 inits <- list(
   Lambda0 = Lambda0, #Stalls w/o
-  mu.Lambda0 = mean(Lambda0), #Still runs w/o
-  sd.Lambda0 = sd(Lambda0),
-  tau.Lambda0 = 1/(sd(Lambda0))^2,
+  # mu.Lambda0 = mean(Lambda0), #Still runs w/o
+  # sd.Lambda0 = sd(Lambda0),
+  # tau.Lambda0 = 1/(sd(Lambda0))^2,
   mu.gamma = mu.gamma, #runif(1, min(gamma0 * 0.95, gamma0 * 1.05), max(gamma0 * 0.95, gamma0 * 1.05)),
   gamma0 = gamma0,
   sd.gamma = sd.gamma, #runif(1, 0.04, 0.06),
@@ -91,8 +90,6 @@ params <- c(
   # "theta.sd",
   #"p",
   "mu.gamma",
-  "mu.gamma.real",
-  "gamma0.real",
   "gamma0",
   "psi0"
 )
