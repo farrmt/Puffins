@@ -8,15 +8,15 @@ envr <- environment()
 #-Metadata-#
 #----------#
 
-load(file = "metadata.Rds")
+load(file = "metadata2.Rds")
 
-scenario <- head(metadata$scenario, n = 1)
-altID <- head(metadata$altID, n = 1)
-simID <- head(metadata$simID, n = 1)
-iterID <- head(metadata$iterID, n = 1)
+scenario <- head(metadata2$scenario, n = 1)
+altID <- head(metadata2$altID, n = 1)
+simID <- head(metadata2$simID, n = 1)
+iterID <- head(metadata2$iterID, n = 1)
 
-metadata <- metadata[-1,]
-save(metadata, file = "metadata.Rds")
+metadata2 <- metadata2[-1,]
+save(metadata2, file = "metadata2.Rds")
 
 #-----------#
 #-Load data-#
@@ -30,7 +30,12 @@ list2env(output, envir = envr)
 #-Run model-#
 #-----------#
 
-sys.source("SubsamplingModel.R", envir = envr, toplevel.env = envr)
+if(altID %in% c(1:7,11)){
+  sys.source("SubsamplingModel.R", envir = envr, toplevel.env = envr)
+}else{
+  sys.source("IntegratedModel.R", envir = envr, toplevel.env = envr)
+}
+
 
 #-------------#
 #-Save Output-#
@@ -83,7 +88,7 @@ output <- rbind(output,
                            "mean" = summary(out)[[1]][paste0("gamma0", "[", which.min(get("gamma0.real")), "]"),"Mean"],
                            "sd" = summary(out)[[1]][paste0("gamma0", "[", which.min(get("gamma0.real")), "]"),"SD"],
                            "coverage" = summary(out)[[2]][paste0("gamma0", "[", which.min(get("gamma0.real")), "]"),1] <= get("gamma0.real")[which.min(get("gamma0.real"))] & 
-                             summary(out)[[2]][paste0("gamma0", "[", which.min(get(params[k])), "]"),5] >= get("gamma0.real")[which.min(get("gamma0.real"))],
+                             summary(out)[[2]][paste0("gamma0", "[", which.min(get("gamma0.real")), "]"),5] >= get("gamma0.real")[which.min(get("gamma0.real"))],
                            "rhat" = as.numeric(coda::gelman.diag(out[1:3][,paste0("gamma0", "[", which.min(get("gamma0.real")), "]")])[[1]][,1])))
 output <- rbind(output, 
                 data.frame("scenario" = scenario, "alternative" = altID, "simID" = simID, "iterID" = iterID, "trend" = "max",
@@ -91,7 +96,7 @@ output <- rbind(output,
                            "mean" = summary(out)[[1]][paste0("gamma0", "[", which.max(get("gamma0.real")), "]"),"Mean"],
                            "sd" = summary(out)[[1]][paste0("gamma0", "[", which.max(get("gamma0.real")), "]"),"SD"],
                            "coverage" = summary(out)[[2]][paste0("gamma0", "[", which.max(get("gamma0.real")), "]"),1] <= get("gamma0.real")[which.max(get("gamma0.real"))] & 
-                             summary(out)[[2]][paste0("gamma0", "[", which.max(get(params[k])), "]"),5] >= get("gamma0.real")[which.max(get("gamma0.real"))],
+                             summary(out)[[2]][paste0("gamma0", "[", which.max(get("gamma0.real")), "]"),5] >= get("gamma0.real")[which.max(get("gamma0.real"))],
                            "rhat" = as.numeric(coda::gelman.diag(out[1:3][,paste0("gamma0", "[", which.max(get("gamma0.real")), "]")])[[1]][,1])))
 
 
